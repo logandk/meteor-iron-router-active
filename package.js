@@ -1,6 +1,6 @@
 Package.describe({
   name: 'logandk:iron-router-active',
-  version: '1.0.0',
+  version: '1.0.1',
   summary: 'Meteor template helper for detecting the active iron:router route',
   git: 'https://github.com/logandk/meteor-iron-router-active',
   documentation: 'README.md'

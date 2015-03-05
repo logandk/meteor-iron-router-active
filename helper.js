@@ -5,29 +5,26 @@ Template.registerHelper('isActive', function(view) {
                     JSON.stringify(view));
   }
 
-  var options = _.extend({
-    className: '',
-    regex: false,
-    inverse: false,
-    route: '',
-    path: '',
-    data: _.extend({}, this)
-  }, view.hash);
+  var options = (view && view.hash) || {};
+  var className = options.className || '';
+  var regex = options.regex || false;
+  var inverse = options.inverse || false;
+  var route = options.route || '';
+  var path = options.path || '';
+  var data = _.extend({}, options.data || this);
 
-  check(options, {
-    className: Match.Optional(String),
-    regex: Match.Optional(Boolean),
-    inverse: Match.Optional(Boolean),
-    route: Match.Optional(String),
-    path: Match.Optional(String),
-    data: Match.Optional(Object)
-  });
+  check(className, Match.Optional(String));
+  check(regex, Match.Optional(Boolean));
+  check(inverse, Match.Optional(Boolean));
+  check(route, Match.Optional(String));
+  check(path, Match.Optional(String));
+  check(data, Match.Optional(Object));
 
-  if (_.isEmpty(options.className)) {
-    options.className = options.inverse ? 'disabled' : 'active';
+  if (_.isEmpty(className)) {
+    className = inverse ? 'disabled' : 'active';
   }
 
-  if (_.isEmpty(options.route) && _.isEmpty(options.path)) {
+  if (_.isEmpty(route) && _.isEmpty(path)) {
     throw new Error("isActive requires a route or path to be specified, such " +
                     "as {{isActive route='home'}}. You passed: " +
                     JSON.stringify(view));
@@ -38,35 +35,35 @@ Template.registerHelper('isActive', function(view) {
 
   var current, pattern;
 
-  if (options.route) {
+  if (route) {
     if (!controller.route) return false;
     current = controller.route.getName();
-    pattern = options.route;
+    pattern = route;
   } else {
     current = controller.location.get().path;
-    pattern = options.path;
+    pattern = path;
   }
 
   var test = false;
 
-  if (options.regex) {
+  if (regex) {
     var re = new RegExp(pattern, 'i');
     test = re.test(current);
   } else {
     test = (current == pattern);
   }
 
-  if (!_.isEmpty(options.data) && controller.route && test) {
+  if (!_.isEmpty(data) && controller.route && test) {
     _.each(controller.route.handler.compiledUrl.keys, function (keyConfig) {
       var key = keyConfig.name;
-      if (_.has(options.data, key)) {
-        if (test) test = (options.data[key] == controller.params[key]);
+      if (_.has(data, key)) {
+        if (test) test = (data[key] == controller.params[key]);
       }
     });
   }
 
-  if ((!options.inverse && test) || (options.inverse && !test)) {
-    return options.className;
+  if ((!inverse && test) || (inverse && !test)) {
+    return className;
   } else {
     return false;
   }
